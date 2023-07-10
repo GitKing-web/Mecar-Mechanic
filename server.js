@@ -5,9 +5,6 @@ const PORT = process.env.PORT || 3000;
 const router = require("./src/routes/routes.router");
 const connectDB = require("./src/configs/configs.index");
 
-// app.get('/', (req, res) => {
-//     res.status(200).send('welcome to Mecar...')
-// });
 app.use(express.json());
 app.use("/", router);
 
