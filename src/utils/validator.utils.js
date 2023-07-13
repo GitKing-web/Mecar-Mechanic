@@ -8,7 +8,7 @@ const LoginValidator = Joi.object().keys({
 const SignUpValidator = Joi.object().keys({
   email: Joi.string().email().required(),
   username: Joi.string().required(),
-  phone: Joi.number().max(11).required(),
+  phone: Joi.number().min(11).required(),
   password: Joi.string().min(6).required(),
 });
 
