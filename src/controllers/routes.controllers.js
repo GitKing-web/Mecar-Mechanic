@@ -36,7 +36,7 @@ const handleSignup = async (req, res) => {
 
 const handleLogin = async (req, res) => {
   try {
-    const { data, password } = req.body;
+    const { data, password: pass } = req.body;
 
     const { error, value } = LoginValidator.validate(req.body);
 
@@ -52,13 +52,13 @@ const handleLogin = async (req, res) => {
           return res.status(401).send("Invalid Credentials phone...");
         }
 
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(pass, user.password);
 
         if (!isPasswordCorrect) {
           return res.status(401).send("Invalid Credentials...");
         }
-
-        return res.status(200).send("login sucessful.");
+        const {password, ...others} = user._doc  
+        return res.status(200).send(others);
       }
     }
 
@@ -69,13 +69,13 @@ const handleLogin = async (req, res) => {
         return res.status(401).send("Invalid Credentials email...");
       }
 
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      const isPasswordCorrect = await bcrypt.compare(pass, user.password);
 
       if (!isPasswordCorrect) {
         return res.status(401).send("Invalid Credentials...");
       }
-
-      return res.status(200).send("login sucessful.");
+      const {password, ...others} = user._doc  
+      return res.status(200).send(others);
     }
   } catch (error) {
     console.log(error);
