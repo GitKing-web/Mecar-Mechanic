@@ -36,35 +36,50 @@ const handleSignup = async (req, res) => {
 
 const handleLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { data, password } = req.body;
 
-    let user;
+    const { error, value } = LoginValidator.validate(req.body);
 
-    // validator
-    const { error } = LoginValidator.validate(req.body);
-
-    if (error.details[0].type == "string.email") {
-      user = await User.findOne({ email });
-      if (!user) {
-        res.status(401).send("Invalid Credentials...");
-        return;
+    if (error?.details[0]?.type === "string.email") {
+      if (!parseInt(data)) {
+        return res.status(401).send("Enter a valid email or phone number...");
       }
-    } else {
-      user = await User.findOne({ phone: email });
-      if (!user) {
-        res.status(401).send("Invalid Credentials...");
-        return;
+
+      if (parseInt(data)) {
+        const user = await User.findOne({ phone: data });
+
+        if (!user) {
+          return res.status(401).send("Invalid Credentials phone...");
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordCorrect) {
+          return res.status(401).send("Invalid Credentials...");
+        }
+
+        return res.status(200).send("login sucessful.");
       }
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
-      res.status(401).send("Invalid Credentials...");
-      return;
-    }
+    if (value) {
+      const user = await User.findOne({ email: data });
 
-    res.status(200).send("login sucessful.");
+      if (!user) {
+        return res.status(401).send("Invalid Credentials email...");
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordCorrect) {
+        return res.status(401).send("Invalid Credentials...");
+      }
+
+      return res.status(200).send("login sucessful.");
+    }
   } catch (error) {
+    console.log(error);
+
     res.status(405).send("Internal Server Error");
   }
 };
